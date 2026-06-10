@@ -578,6 +578,11 @@
         <button onclick="turnOnScreensaverMode()" class="h-12 w-12 rounded-xl bg-gradient-to-r from-slate-900 to-indigo-950 border border-cyan-500/50 flex items-center justify-center text-cyan-400 shadow-lg cursor-pointer hover:scale-110 transition-transform" title="Aktifkan Screensaver Animasi Hologram Kucing Siber Sekarang">
             <i class="fa-solid fa-desktop text-sm"></i>
         </button>
+        
+        <button id="floatingRefreshBtn" onclick="executeGlobalSystemReset()" class="h-12 w-12 rounded-xl bg-gradient-to-r from-slate-950 to-slate-900 border border-amber-500/60 flex items-center justify-center text-amber-400 shadow-lg cursor-pointer hover:scale-110 transition-transform" title="Reset Pemetaan, Bersihkan Target GIS & Sinkronisasi Ulang Data">
+            <i id="refreshIconElement" class="fa-solid fa-rotate text-sm"></i>
+        </button>
+
         <button onclick="toggleChatWindow()" class="h-14 w-14 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 border-2 border-white flex items-center justify-center text-white shadow-[0_10px_30px_rgba(6,182,212,0.5)] cursor-pointer hover:scale-110 transition-transform relative" title="Buka Asisten Robot Pintar Komputasi Klimatologi">
             <i class="fa-solid fa-robot text-2xl"></i>
             <span class="absolute top-0 right-0 h-3.5 w-3.5 bg-emerald-400 rounded-full border-2 border-white animate-ping"></span>
@@ -650,8 +655,8 @@
 
             <div class="flex flex-wrap items-center gap-3 shrink-0">
                 <div class="flex rounded-lg bg-slate-950 p-1 border border-indigo-500/50 text-xs font-mono font-black mr-2">
-                    <button onclick="switchFullScreenViewMode('map')" id="fsViewBtn-map" class="px-3 py-1.5 rounded text-slate-400 transition-all cursor-pointer">PETA GIS</button>
-                    <button onclick="switchFullScreenViewMode('weather')" id="fsViewBtn-weather" class="px-3 py-1.5 rounded bg-amber-600 text-white shadow-md cursor-pointer">RADAR SST</button>
+                    <button onclick="switchFullScreenViewMode('map')" id="fsViewBtn-map" class="px-3 py-1.5 rounded text-slate-400 transition-all cursor-pointer font-bold">PETA GIS</button>
+                    <button onclick="switchFullScreenViewMode('weather')" id="fsViewBtn-weather" class="px-3 py-1.5 rounded bg-amber-600 text-white shadow-md cursor-pointer font-bold">RADAR SST</button>
                 </div>
                 <div id="fsBasemapControlsGroup" class="flex rounded-lg bg-slate-950 p-1 border border-cyan-500/40 text-xs font-mono font-black">
                     <button onclick="switchBaseMapLayer('street')" id="fsMapBtn-street" class="px-3 py-1.5 rounded text-slate-400 transition-all cursor-pointer">STREET</button>
@@ -946,7 +951,7 @@
             marker.on('click', () => { updateWindyRadarLocation(stn.coords[0], stn.coords[1], 4); toggleMapWeatherFlip('weather'); });
         });
 
-        // ENGINE PENCARIAN TERINTEGRASI & RESPONSIIF ENTER
+        // ENGINE PENCARIAN TERINTEGRASI & RESPONSIIF ENTER (SINKRONISASI NORMAL & FULLSCREEN)
         function checkSearchEnterKey(event, inputId) {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -963,10 +968,15 @@
             const query = queryInput.value.trim();
             if (!query) return;
 
+            // Samakan isi teks antar input pencarian normal dan fullscreen demi konsistensi UX
+            const normalSearchBox = document.getElementById('citySearchInput');
+            const fsSearchBox = document.getElementById('fullscreenSearchInput');
+            if(normalSearchBox) normalSearchBox.value = query;
+            if(fsSearchBox) fsSearchBox.value = query;
+
             const indicator = document.getElementById('searchIndicator');
             if(indicator) indicator.classList.remove('hidden');
 
-            // Cek apakah input murni format koordinat angka (Format: "lat, lon" atau "lat lon")
             const splitRegex = /[\s,]+/;
             const parts = query.split(splitRegex);
 
@@ -980,7 +990,6 @@
                 }
             }
 
-            // Jika input berupa string kota/negara, hubungkan ke server nominatim
             fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
                 .then(response => response.json())
                 .then(data => {
@@ -989,8 +998,6 @@
                         const lat = parseFloat(data[0].lat);
                         const lon = parseFloat(data[0].lon);
                         const displayName = data[0].display_name;
-                        
-                        // Ekstrak nama pendek untuk judul tooltip murni
                         const shortName = displayName.split(',')[0];
                         processSearchResult(lat, lon, shortName, displayName);
                     } else {
@@ -1008,12 +1015,13 @@
             document.getElementById('focused-location').innerText = shortName.toUpperCase();
             document.getElementById('focused-location').style.color = "#06b6d4";
 
-            // Geser peta utama & sinkronisasi radar Windy
+            // Update peta dasar normal
             map.flyTo([lat, lon], 6);
             updateWindyRadarLocation(lat, lon, 6);
 
-            // Tampilkan Tooltip Kustom Siber Menarik di Peta Utama
+            // Bersihkan marker lama
             if (globalSearchedMarker) map.removeLayer(globalSearchedMarker);
+            if (fsMapInstance && fsGlobalSearchedMarker) fsMapInstance.removeLayer(fsGlobalSearchedMarker);
             
             const customPulseIcon = L.divIcon({
                 className: 'relative flex h-8 w-8',
@@ -1021,8 +1029,6 @@
                 iconSize: [32, 32], iconAnchor: [16, 16]
             });
 
-            globalSearchedMarker = L.marker([lat, lon], { icon: customPulseIcon }).addTo(map);
-            
             const tooltipContent = `
                 <div class="font-mono p-1">
                     <span class="block text-[9px] text-cyan-400 font-black tracking-widest uppercase mb-1"><i class="fa-solid fa-satellite animate-pulse"></i> TARGET DETECTED</span>
@@ -1035,19 +1041,62 @@
                 </div>
             `;
 
+            // Pasang marker pada peta normal
+            globalSearchedMarker = L.marker([lat, lon], { icon: customPulseIcon }).addTo(map);
             globalSearchedMarker.bindTooltip(tooltipContent, {
                 permanent: true, direction: 'top', className: 'custom-tooltip', offset: L.point(0, -15)
             }).openTooltip();
 
-            // Eksekusi penyesuaian jika sedang dalam lingkungan Layar Penuh
-            if (fsMapInstance && !document.getElementById("gisFullScreenWrapper").classList.contains("hidden")) {
+            // Pasang marker pada peta fullscreen jika instansinya sudah diinisialisasi
+            if (fsMapInstance) {
                 fsMapInstance.flyTo([lat, lon], 6);
-                if (fsGlobalSearchedMarker) fsMapInstance.removeLayer(fsGlobalSearchedMarker);
                 fsGlobalSearchedMarker = L.marker([lat, lon], { icon: customPulseIcon }).addTo(fsMapInstance);
                 fsGlobalSearchedMarker.bindTooltip(tooltipContent, {
                     permanent: true, direction: 'top', className: 'custom-tooltip', offset: L.point(0, -15)
                 }).openTooltip();
             }
+        }
+
+        function updateWindyRadarLocation(lat, lon, zoomLevel) {
+            const newSrc = `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=${zoomLevel}&overlay=sst&product=ecmwf&level=surface&lat=${lat}&lon=${lon}`;
+            const normalIframe = document.getElementById('dashboardWeatherIframe');
+            const fsIframe = document.getElementById('fullscreenWeatherIframe');
+            if(normalIframe) normalIframe.src = newSrc;
+            if(fsIframe) fsIframe.src = newSrc;
+        }
+
+        // FUNGSI UTAMA TOMBOL REFRESH MELAYANG (RESET GLOBAL TERMURAH DAN VALID)
+        function executeGlobalSystemReset() {
+            const refreshIcon = document.getElementById('refreshIconElement');
+            if(refreshIcon) {
+                refreshIcon.classList.add('animate-spin');
+                setTimeout(() => refreshIcon.classList.remove('animate-spin'), 1000);
+            }
+
+            // 1. Bersihkan semua marker pencarian dan marker arsip ekstrem
+            if(globalSearchedMarker) { map.removeLayer(globalSearchedMarker); globalSearchedMarker = null; }
+            if(fsGlobalSearchedMarker && fsMapInstance) { fsMapInstance.removeLayer(fsGlobalSearchedMarker); fsGlobalSearchedMarker = null; }
+            if(currentPulsarMarker) { map.removeLayer(currentPulsarMarker); currentPulsarMarker = null; }
+
+            // 2. Matikan Sirine Kebencanaan & Tutup Panel Arsip Kebencanaan
+            matikanSirine();
+            document.getElementById('arsipModal').classList.add('hidden');
+            document.getElementById('placeholderArsip').classList.remove('hidden');
+            document.getElementById('kontenMitigasi').classList.add('hidden');
+
+            // 3. Bersihkan Kolom Input teks pencarian
+            if(document.getElementById('citySearchInput')) document.getElementById('citySearchInput').value = '';
+            if(document.getElementById('fullscreenSearchInput')) document.getElementById('fullscreenSearchInput').value = '';
+            if(document.getElementById('windyCustomSearch')) document.getElementById('windyCustomSearch').value = '';
+
+            // 4. Kembalikan Peta dasar & Radar Windy ke Posisi Default Maritim Nusantara
+            map.setView([-0.5, 120.0], 4);
+            if(fsMapInstance) fsMapInstance.setView([-0.5, 120.0], 4);
+            resetWindyView('indonesia');
+
+            // 5. Kembalikan Mode Sinkronisasi Otomatis
+            aktifkanOtomatisasiWindy();
+            switchPilar(1);
         }
 
         function sinkronisasiDasarianPerangkat() {
@@ -1109,16 +1158,50 @@
         function enterMapFullScreenMode() {
             document.getElementById("mainDashboardInterface").classList.add("hidden"); document.getElementById("gisFullScreenWrapper").classList.remove("hidden");
             document.getElementById("fullscreenMapControls").classList.add("keep-open");
+            
             if(!fsMapInstance) {
                 fsMapInstance = L.map('fullScreenMapContainer', { zoomControl: false }).setView(map.getCenter(), map.getZoom()); L.control.zoom({ position: 'bottomright' }).addTo(fsMapInstance); 
                 currentFsMapLayerGroup = L.tileLayer(mapTileProviders[activeMapStyle]).addTo(fsMapInstance);
-                stasiunKlimatologi.forEach(stn => L.circleMarker(stn.coords, { radius: 10, fillColor: stn.color, color: "#ffffff", weight: 2 }).addTo(fsMapInstance));
+                
+                stasiunKlimatologi.forEach(stn => {
+                    const marker = L.circleMarker(stn.coords, { radius: 10, fillColor: stn.color, color: "#ffffff", weight: 2, fillOpacity: 0.8 }).addTo(fsMapInstance);
+                    marker.bindTooltip(`
+                        <div class="text-xs">
+                            <span class="block text-[10px] text-cyan-400 font-bold tracking-widest mb-0.5">TELEMETRI STASIUN</span>
+                            <strong class="font-bold">${stn.name}</strong><br>
+                            <span class="text-slate-400 text-[10px]">Pos GIS: ${stn.coords[0].toFixed(4)}, ${stn.coords[1].toFixed(4)}</span>
+                        </div>
+                    `, { direction: 'auto', sticky: true, className: 'custom-tooltip', offset: L.point(0, -10) });
+                });
+            } else {
+                fsMapInstance.setView(map.getCenter(), map.getZoom());
             }
+
+            // Jika sebelumnya ada marker hasil pencarian, gambar ulang di peta fullscreen
+            if(globalSearchedMarker) {
+                const currentLatLng = globalSearchedMarker.getLatLng();
+                const tooltipText = globalSearchedMarker.getTooltip().getContent();
+                
+                if (fsGlobalSearchedMarker) fsMapInstance.removeLayer(fsGlobalSearchedMarker);
+                
+                const customPulseIcon = L.divIcon({
+                    className: 'relative flex h-8 w-8',
+                    html: `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span><span class="relative inline-flex rounded-full h-8 w-8 bg-cyan-600 border-2 border-white flex items-center justify-center shadow-lg"><i class="fa-solid fa-location-dot text-white text-xs"></i></span>`,
+                    iconSize: [32, 32], iconAnchor: [16, 16]
+                });
+                
+                fsGlobalSearchedMarker = L.marker(currentLatLng, { icon: customPulseIcon }).addTo(fsMapInstance);
+                fsGlobalSearchedMarker.bindTooltip(tooltipText, { permanent: true, direction: 'top', className: 'custom-tooltip', offset: L.point(0, -15) }).openTooltip();
+            }
+
             const flipper = document.getElementById('mapWeatherFlipper');
             switchFullScreenViewMode(flipper.classList.contains('flipped') ? 'weather' : 'map');
         }
 
         function exitMapFullScreenMode() { 
+            // Sinkronisasi posisi center dan zoom kembali ke peta normal sebelum keluar
+            if(fsMapInstance) { map.setView(fsMapInstance.getCenter(), fsMapInstance.getZoom()); }
+            
             document.getElementById("gisFullScreenWrapper").classList.add("hidden"); 
             document.getElementById("fullscreenMapControls").classList.remove("keep-open");
             document.getElementById("mainDashboardInterface").classList.remove("hidden"); 
