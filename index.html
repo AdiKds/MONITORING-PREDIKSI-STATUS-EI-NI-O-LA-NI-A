@@ -89,7 +89,6 @@
         .chat-window { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
         .drag-handle { cursor: move; user-select: none; }
         
-        /* Hapus native cursor help karena sudah diganti holo-tooltip */
         [data-holo] { cursor: help; }
 
         .bar-chart-value { transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -108,7 +107,7 @@
         /* HOLOGRAPHIC TOOLTIP ENGINE CSS */
         #holographic-tooltip {
             position: fixed;
-            z-index: 999999; /* Selalu di atas segalanya */
+            z-index: 999999;
             pointer-events: none;
             background: rgba(2, 6, 23, 0.88);
             backdrop-filter: blur(8px);
@@ -613,28 +612,9 @@
         </section>
     </div>
 
-    <div id="chatBotContainer" class="fixed bottom-6 right-6 z-[180] flex flex-row items-center gap-2 bg-slate-950/80 backdrop-blur-md py-2 px-3 rounded-full border border-slate-800 shadow-xl group">
-        <button onclick="toggleFloatingMenu()" class="h-14 w-8 rounded-full bg-slate-900 border-2 border-slate-700 hover:border-cyan-400 hover:bg-slate-800 text-cyan-400 flex items-center justify-center transition-all cursor-pointer shadow-inner shrink-0" title="Sembunyikan Menu Navigasi AI Kesebelah Kanan">
-            <i id="floatMenuIcon" class="fa-solid fa-angles-right text-xs"></i>
-        </button>
-
-        <div id="floatingButtonsGroup" class="flex flex-row items-center gap-3 transition-all duration-500 origin-right max-w-[500px] opacity-100 px-1 overflow-hidden shrink-0">
-            <button onclick="turnOnScreensaverMode()" class="h-12 w-12 rounded-full bg-gradient-to-r from-slate-900 to-indigo-950 border border-cyan-500/50 flex items-center justify-center text-cyan-400 shadow-lg cursor-pointer hover:scale-110 transition-transform shrink-0" title="Aktifkan Mode Animasi Hologram Leopard Siber Penjaga Layar Sekarang Juga">
-                <i class="fa-solid fa-desktop text-sm"></i>
-            </button>
-            <button id="btnAITrackToggle" onclick="toggleAITracking()" class="h-12 w-12 rounded-full bg-gradient-to-r from-slate-900 to-indigo-950 border border-cyan-500/50 flex items-center justify-center text-cyan-400 shadow-lg cursor-pointer hover:scale-110 transition-transform shrink-0" title="Klik Untuk Menjalankan Algoritma AI Tracking Guna Melacak Potensi Anomali Cuaca Ekstrem Tersembunyi">
-                <i class="fa-solid fa-satellite-dish text-sm"></i>
-            </button>
-            <button id="floatingRefreshBtn" onclick="executeGlobalSystemReset()" class="h-12 w-12 rounded-full bg-gradient-to-r from-slate-950 to-slate-900 border border-amber-500/60 flex items-center justify-center text-amber-400 shadow-lg cursor-pointer hover:scale-110 transition-transform shrink-0" title="Lakukan Pembersihan Peta Geospasial, Matikan Sirine, Serta Sinkronisasi Ulang Semua Parameter Komputasi">
-                <i id="refreshIconElement" class="fa-solid fa-rotate text-sm"></i>
-            </button>
-            <button onclick="toggleChatWindow()" class="h-14 w-14 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 border-2 border-white flex items-center justify-center text-white shadow-[0_10px_30px_rgba(6,182,212,0.5)] cursor-pointer hover:scale-110 transition-transform relative shrink-0" title="Buka Jendela Komunikasi Asisten Robot Pintar ENSO Klimatologi">
-                <i class="fa-solid fa-robot text-2xl"></i>
-                <span class="absolute top-0 right-0 h-3.5 w-3.5 bg-emerald-400 rounded-full border-2 border-white animate-ping"></span>
-            </button>
-        </div>
-
-        <div id="chatWindow" class="chat-window w-[360px] sm:w-[450px] h-[580px] bg-[#0f172a] border-2 border-cyan-400 rounded-2xl flex-col hidden absolute bottom-24 right-0 overflow-hidden transition-all duration-300 shadow-2xl">
+    <div id="chatBotContainer" class="fixed bottom-6 right-6 z-[180] flex flex-col items-end gap-3 pointer-events-none group">
+        
+        <div id="chatWindow" class="chat-window w-[360px] sm:w-[450px] h-[580px] bg-[#0f172a] border-2 border-cyan-400 rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 shadow-2xl pointer-events-auto relative">
             <div class="bg-gradient-to-r from-[#020617] to-blue-950 p-4 border-b-2 border-cyan-500 flex flex-col gap-1 shrink-0">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
@@ -653,9 +633,9 @@
             </div>
             
             <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-4 font-sans text-[15px] text-white bg-[#020617] font-medium">
-                <div class="bg-[#0f172a]/80 p-3 rounded-xl border border-slate-700 max-w-[85%] font-sans font-bold text-slate-100">
+                <div class="bg-[#0f172a]/80 p-3 rounded-xl border border-slate-700 max-w-[85%] font-sans font-bold text-slate-100 shadow-lg">
                     <span class="text-cyan-400 font-mono text-xs block font-black mb-1"><i class="fa-solid fa-terminal"></i> ASSISTANT INITIALIZED:</span>
-                    Halo! Saya asisten pintar klimatologi ENSO Indonesia. Klik pintasan di bawah atau ketik langsung pesan Anda:
+                    Halo! Saya asisten pintar ENSO. Saya terhubung dengan sistem lokal dan <b>API Wikipedia</b> untuk menjawab seluruh panduan cuaca Anda. Ketik, gunakan pintasan, atau klik ikon <i>Mic</i> untuk berbicara!
                 </div>
             </div>
 
@@ -666,9 +646,39 @@
                 <button onclick="triggerShortcut('programmer')" class="px-3 py-1.5 bg-[#020617] border-2 border-fuchsia-500/60 rounded-xl text-[11px] font-black text-fuchsia-400 hover:bg-fuchsia-950/40 hover:scale-105 cursor-pointer transition-all duration-300" title="Informasi Lengkap Database Mengenai Ilmuwan / Programmer Arsitektur Kode Aplikasi Web Ekstrem Ini">👨‍💻 Programmer</button>
             </div>
 
-            <div class="p-3 bg-[#0f172a] border-t border-slate-800 flex gap-2 shrink-0">
-                <input type="text" id="chatInput" placeholder="Ketik pesan atau klik pintasan..." class="flex-1 bg-[#020617] border-2 border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-cyan-400 font-bold placeholder-slate-500" onkeypress="handleChatKeyPress(event)" title="Ketik Perintah Analisis Cuaca Atau Parameter Oseanografi Disini Untuk Dijawab Oleh Bot...">
-                <button onclick="processChatMessage()" class="bg-cyan-600 hover:bg-cyan-500 hover:scale-105 transition-transform text-white px-4 rounded-xl text-sm font-black cursor-pointer flex items-center justify-center" title="Kirim Prompt Data Kepada AI Engine Terminal"><i class="fa-solid fa-paper-plane"></i></button>
+            <div class="p-3 bg-[#0f172a] border-t border-slate-800 flex gap-2 shrink-0 items-center">
+                <button onclick="startVoiceRecognition()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 px-3 py-2.5 rounded-xl text-sm transition-transform cursor-pointer shadow-inner" title="Gunakan Perintah Suara / Voice Command">
+                    <i id="micBtnIcon" class="fa-solid fa-microphone"></i>
+                </button>
+                <input type="text" id="chatInput" placeholder="Ketik atau ucapkan pesan..." class="flex-1 bg-[#020617] border-2 border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-cyan-400 font-bold placeholder-slate-500" onkeypress="handleChatKeyPress(event)" title="Ketik Perintah Analisis Cuaca Atau Parameter Oseanografi Disini Untuk Dijawab Oleh Bot...">
+                <button onclick="processChatMessage()" class="bg-cyan-600 hover:bg-cyan-500 hover:scale-105 transition-transform text-white px-4 py-2.5 rounded-xl text-sm font-black cursor-pointer flex items-center justify-center" title="Kirim Prompt Data Kepada AI Engine Terminal"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <div class="flex flex-row items-center gap-2 bg-slate-950/80 backdrop-blur-md py-2 px-3 rounded-full border border-slate-800 shadow-xl pointer-events-auto">
+            <button onclick="toggleFloatingMenu()" class="h-14 w-8 rounded-full bg-slate-900 border-2 border-slate-700 hover:border-cyan-400 hover:bg-slate-800 text-cyan-400 flex items-center justify-center transition-all cursor-pointer shadow-inner shrink-0" title="Sembunyikan Menu Navigasi AI Kesebelah Kanan">
+                <i id="floatMenuIcon" class="fa-solid fa-angles-right text-xs"></i>
+            </button>
+
+            <div id="floatingButtonsGroup" class="flex flex-row items-center gap-3 transition-all duration-500 origin-right max-w-[600px] opacity-100 px-1 overflow-hidden shrink-0">
+                <button onclick="turnOnScreensaverMode()" class="h-12 w-12 rounded-full bg-gradient-to-r from-slate-900 to-indigo-950 border border-cyan-500/50 flex items-center justify-center text-cyan-400 shadow-lg cursor-pointer hover:scale-110 transition-transform shrink-0" title="Aktifkan Mode Animasi Hologram Leopard Siber Penjaga Layar Sekarang Juga">
+                    <i class="fa-solid fa-desktop text-sm"></i>
+                </button>
+                <button id="btnAITrackToggle" onclick="toggleAITracking()" class="h-12 w-12 rounded-full bg-gradient-to-r from-slate-900 to-indigo-950 border border-cyan-500/50 flex items-center justify-center text-cyan-400 shadow-lg cursor-pointer hover:scale-110 transition-transform shrink-0" title="Klik Untuk Menjalankan Algoritma AI Tracking Guna Melacak Potensi Anomali Cuaca Ekstrem Tersembunyi">
+                    <i class="fa-solid fa-satellite-dish text-sm"></i>
+                </button>
+                <button id="floatingRefreshBtn" onclick="executeGlobalSystemReset()" class="h-12 w-12 rounded-full bg-gradient-to-r from-slate-950 to-slate-900 border border-amber-500/60 flex items-center justify-center text-amber-400 shadow-lg cursor-pointer hover:scale-110 transition-transform shrink-0" title="Lakukan Pembersihan Peta Geospasial, Matikan Sirine, Serta Sinkronisasi Ulang Semua Parameter Komputasi">
+                    <i id="refreshIconElement" class="fa-solid fa-rotate text-sm"></i>
+                </button>
+
+                <button id="voiceToggleBtn" onclick="toggleVoice()" class="h-12 w-12 rounded-full bg-gradient-to-r from-slate-900 to-slate-950 bg-emerald-950 border border-emerald-400 flex items-center justify-center text-emerald-400 shadow-lg cursor-pointer hover:scale-110 transition-transform shrink-0" title="Nyalakan/Matikan Penjelasan Suara Asisten Bot">
+                    <i id="voiceToggleIcon" class="fa-solid fa-volume-high text-sm"></i>
+                </button>
+
+                <button onclick="toggleChatWindow()" class="h-14 w-14 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 border-2 border-white flex items-center justify-center text-white shadow-[0_10px_30px_rgba(6,182,212,0.5)] cursor-pointer hover:scale-110 transition-transform relative shrink-0" title="Buka Jendela Komunikasi Asisten Robot Pintar ENSO Klimatologi">
+                    <i class="fa-solid fa-robot text-2xl"></i>
+                    <span class="absolute top-0 right-0 h-3.5 w-3.5 bg-emerald-400 rounded-full border-2 border-white animate-ping"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -738,6 +748,12 @@
             </div>
             
             <div class="space-y-5 text-sm font-bold text-[var(--text-main)] leading-relaxed">
+                <div class="bg-cyan-950/40 p-4 rounded-xl border border-cyan-800 shadow-inner">
+                    <span class="text-cyan-400 font-tech text-sm block mb-1.5 uppercase tracking-widest"><i class="fa-solid fa-robot"></i> Fitur Voice Bot & Integrasi Wikipedia API</span>
+                    Bot asisten pintar di aplikasi ini mampu mencari informasi tak terbatas dari internet secara dinamis (terintegrasi langsung menggunakan sambungan <b>API Wikipedia Terbuka</b>).<br><br>
+                    Anda dapat menyalakan <b>Voice Feature</b> (Penjelasan Suara Bot) melalui ikon <i class="fa-solid fa-volume-high text-emerald-400"></i> pada bilah panel navigasi apung, dan memberikan <b>Voice Command</b> (Perintah Suara Pengguna) melalui ikon Mic <i class="fa-solid fa-microphone text-cyan-400"></i> pada bilah form input chat. Algoritma pelacak bahaya AI (AI Tracking) juga akan turut membacakan saran mitigasi keselamatannya secara otomatis.
+                </div>
+
                 <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 shadow-inner">
                     <span class="text-emerald-400 font-tech text-sm block mb-1.5 uppercase tracking-widest">1. Fungsionalitas Program Web & Navigasi</span>
                     Aplikasi ini dirancang sebagai platform analitik interaktif siber kelautan untuk mendeteksi fluktuasi iklim makro wilayah kepulauan Indonesia. Fitur navigasi tambahan mencakup tombol slider berikon <code>&gt;&gt;</code> pada panel bot (pojok kanan bawah) untuk melebarkan/menyembunyikan menu pintasan agar pandangan peta lebih leluasa, serta tombol **MENU** di mode *Fullscreen* untuk menyembunyikan navigasi atas.
@@ -965,6 +981,98 @@
         const maximumIdleLimitBeforeActivation = 300; 
         let isMonsoonScreensaverModeActive = false;
 
+        // ================= FITUR BARU: TEXT-TO-SPEECH (SUARA BOT) =================
+        let isVoiceEnabled = true;
+
+        function toggleVoice() {
+            isVoiceEnabled = !isVoiceEnabled;
+            const icon = document.getElementById('voiceToggleIcon');
+            const btn = document.getElementById('voiceToggleBtn');
+            if(isVoiceEnabled) {
+                icon.classList.replace('fa-volume-xmark', 'fa-volume-high');
+                btn.classList.replace('border-emerald-500/60', 'border-emerald-400');
+                btn.classList.add('bg-emerald-950');
+                
+                // Beri Konfirmasi Langsung Bahwa Suara Menyala
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance("Fitur penjelasan suara asisten kecerdasan buatan, telah diaktifkan.");
+                utterance.lang = 'id-ID';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                icon.classList.replace('fa-volume-high', 'fa-volume-xmark');
+                btn.classList.replace('border-emerald-400', 'border-emerald-500/60');
+                btn.classList.remove('bg-emerald-950');
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speakText(htmlText) {
+            if(!isVoiceEnabled) return;
+            // Membersihkan tag HTML dan simbol agar dibaca natural
+            let tempDiv = document.createElement("div");
+            tempDiv.innerHTML = htmlText;
+            let cleanText = tempDiv.textContent || tempDiv.innerText || "";
+            cleanText = cleanText.replace(/\*/g, ''); 
+            
+            window.speechSynthesis.cancel(); 
+            let utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'id-ID';
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ================= FITUR BARU: VOICE COMMAND (PENGGUNA) =================
+        function startVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Browser Anda tidak mendukung fitur Voice Command (Speech Recognition).");
+                return;
+            }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'id-ID';
+            recognition.start();
+            
+            const micBtn = document.getElementById('micBtnIcon');
+            micBtn.classList.remove('fa-microphone');
+            micBtn.classList.add('fa-microphone-lines', 'text-red-500', 'animate-pulse');
+            document.getElementById('chatInput').placeholder = "Mendengarkan suara Anda...";
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('chatInput').value = transcript;
+                processChatMessage();
+            };
+            
+            recognition.onspeechend = function() {
+                recognition.stop();
+                resetMicIcon(micBtn);
+            }
+            recognition.onerror = function(event) {
+                recognition.stop();
+                resetMicIcon(micBtn);
+            }
+        }
+
+        function resetMicIcon(micBtn) {
+            micBtn.classList.add('fa-microphone');
+            micBtn.classList.remove('fa-microphone-lines', 'text-red-500', 'animate-pulse');
+            document.getElementById('chatInput').placeholder = "Ketik atau ucapkan pesan...";
+        }
+
+        // ================= FITUR BARU: FETCH DATA WIKIPEDIA API =================
+        async function fetchWikipediaAPI(query) {
+            try {
+                let res = await fetch(`https://id.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json&origin=*`);
+                let data = await res.json();
+                if(data.query.search.length > 0) {
+                    let topResult = data.query.search[0];
+                    let snippetClean = topResult.snippet.replace(/<span class="searchmatch">/g, '').replace(/<\/span>/g, '');
+                    return `<b>Menemukan referensi dari Wikipedia:</b><br>${snippetClean}... <br><a href="https://id.wikipedia.org/wiki/${encodeURIComponent(topResult.title)}" target="_blank" class="text-cyan-400 underline italic mt-1 inline-block">[Baca Artikel Selengkapnya di Sini]</a>`;
+                }
+            } catch(e) { console.error("Wiki API Error:", e); }
+            return "Maaf, algoritma saya tidak dapat menemukan informasi detail mengenai hal tersebut di internet saat ini.";
+        }
+
         const namaDasarian = [];
         const bulanArr = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
         bulanArr.forEach(b => {
@@ -1037,12 +1145,12 @@
             isFloatingMenuHidden = !isFloatingMenuHidden;
             
             if (isFloatingMenuHidden) {
-                group.classList.remove('max-w-[500px]', 'opacity-100', 'px-1');
+                group.classList.remove('max-w-[600px]', 'opacity-100', 'px-1');
                 group.classList.add('max-w-0', 'opacity-0', 'px-0');
                 icon.classList.replace('fa-angles-right', 'fa-angles-left');
             } else {
                 group.classList.remove('max-w-0', 'opacity-0', 'px-0');
-                group.classList.add('max-w-[500px]', 'opacity-100', 'px-1');
+                group.classList.add('max-w-[600px]', 'opacity-100', 'px-1');
                 icon.classList.replace('fa-angles-left', 'fa-angles-right');
             }
         }
@@ -1376,6 +1484,8 @@
                     const reply = `**AI TRACKING SELESAI:**<br>Bahaya terdeteksi di koordinat <b>${trackedAiLat.toFixed(3)}, ${trackedAiLon.toFixed(3)}</b>.<br>Kategori Risiko: <b>${trackedAiType}</b>.<br>Sistem mitigasi dan sirine peringatan dini telah diaktifkan di peta geospasial! Buka *tooltip marker* yang berkedip pada peta atau tekan tombol <b>Saran Mitigasi</b> untuk pedoman penanggulangan.`;
                     msgContainer.innerHTML += `<div class="bg-[#0f172a]/80 p-3 rounded-xl border border-red-500 max-w-[85%] text-slate-100 font-sans leading-relaxed font-bold shadow-[0_0_15px_rgba(239,68,68,0.3)]"><span class="text-red-400 font-mono text-xs block font-black"><i class="fa-solid fa-robot"></i> AI ALERT:</span>${reply}</div>`;
                     msgContainer.scrollTop = msgContainer.scrollHeight;
+                    
+                    speakText(`Peringatan tingkat tinggi! Terdeteksi ${trackedAiType} di lokasi pelacakan satelit. Menyarankan mitigasi: ${trackedAiMitigasi}`);
                 }, 1800);
 
             } else {
@@ -1389,6 +1499,8 @@
                 
                 msgContainer.innerHTML += `<div class="bg-[#0f172a]/80 p-3 rounded-xl border border-slate-700 max-w-[85%] text-slate-100 font-sans leading-relaxed font-bold"><span class="text-slate-400 font-mono text-xs block font-black"><i class="fa-solid fa-power-off"></i> AI TRACKING OFFLINE:</span>Sistem pelacakan anomali iklim ekstrem telah dihentikan sementara. Sirine dan marker mitigasi dibersihkan.</div>`;
                 msgContainer.scrollTop = msgContainer.scrollHeight;
+
+                speakText("Sistem pelacakan ekstrem, telah dihentikan sementara.");
             }
         }
 
@@ -1646,21 +1758,29 @@
 
         function triggerShortcut(type) {
             const input = document.getElementById('chatInput');
-            if(type === 'enso') input.value = "Jelaskan secara ringkas apa itu fenomena ENSO?";
+            if(type === 'enso') input.value = "Apa itu ENSO?";
             if(type === 'analisis') input.value = "Minta analisis status kelautan dasarian saat ini";
             if(type === 'mitigasi') input.value = "Saran strategi mitigasi bencana ENSO";
             if(type === 'programmer') input.value = "Siapa programmer pengembang aplikasi ini?";
             processChatMessage();
         }
 
-        function processChatMessage() {
-            const inputEl = document.getElementById('chatInput'); const text = inputEl.value.trim(); const query = text.toLowerCase(); if(!query) return;
+        // FUNGSI CHATBOT UTAMA TERINTEGRASI API & SUARA
+        async function processChatMessage() {
+            const inputEl = document.getElementById('chatInput'); 
+            const text = inputEl.value.trim(); 
+            const query = text.toLowerCase(); 
+            if(!query) return;
+            
             const msgContainer = document.getElementById('chatMessages');
-            msgContainer.innerHTML += `<div class="bg-blue-900 p-2.5 rounded-xl self-end max-w-[85%] ml-auto text-white"><span class="text-[10px] text-cyan-300 font-mono block font-black">USER PENGGUNA:</span>${text}</div>`;
+            msgContainer.innerHTML += `<div class="bg-blue-900 p-2.5 rounded-xl self-end max-w-[85%] ml-auto text-white shadow-md"><span class="text-[10px] text-cyan-300 font-mono block font-black">USER PENGGUNA:</span>${text}</div>`;
+            inputEl.value = '';
             
             let reply = "";
-            if (query.includes('enso') || query.includes('apa itu')) {
-                reply = `**EDUKASI KILAT FENOMENA ENSO:**<br><b>ENSO (El Niño-Southern Oscillation)</b> adalah anomali variasi iklim periodik global sirkulasi atmosfer yang terjadi akibat interaksi kopling fluktuasi perubahan suhu permukaan laut (SST) di wilayah Samudra Pasifik Ekuator Tengah-Timur (Zona Niño 3.4). Perubahan temperatur ini berimbas langsung pada bergesernya sabuk awan hujan dan memicu iklim ekstrem global seperti kemarau terik (*El Niño*) atau badai basah masif (*La Niña*) di benua maritim Indonesia.`;
+            let triggerInternetSearch = false;
+
+            if (query.includes('enso') || (query.includes('apa itu') && query.includes('enso'))) {
+                reply = `**EDUKASI KILAT FENOMENA ENSO:**<br><b>ENSO (El Niño-Southern Oscillation)</b> adalah anomali variasi iklim periodik global sirkulasi atmosfer yang terjadi akibat interaksi kopling fluktuasi perubahan suhu permukaan laut (SST) di wilayah Samudra Pasifik Ekuator Tengah-Timur (Zona Niño 3.4). Perubahan temperatur ini berimbas langsung pada bergesernya sabuk awan hujan dan memicu iklim ekstrem global seperti kemarau terik (<i>El Niño</i>) atau badai basah masif (<i>La Niña</i>) di benua maritim Indonesia.`;
             } else if (query.includes('analisis') || query.includes('status') || query.includes('dasarian')) {
                 reply = `**LAPORAN ANALISIS DATA DASARIAN:**<br>Evaluasi siklus dasarian siber: *${simCurrentBulan}* dengan nilai indikatif ONI sebesar **${simCurrentScore}**. Hasil asimilasi instrumen siber laut saat ini menunjukkan: *${simCurrentStatus}*.`;
             } else if (query.includes('mitigasi') || query.includes('saran') || query.includes('strategi')) {
@@ -1677,14 +1797,24 @@
                     <li>● <span class="text-white">Portal Web Blog:</span><br><a href="https://newbieonline7.blogspot.com/" target="_blank" class="text-pink-400 hover:text-pink-300 hover:underline font-bold transition-colors">newbieonline7.blogspot.com <i class="fa-solid fa-globe"></i></a></li>
                 </ul>`;
             } else {
-                reply = `Format perintah tidak dikenal. Gunakan tombol pintasan (*shortcut buttons*) di atas atau ketik kata kunci seperti **\"enso\"**, **\"analisis\"**, **\"mitigasi\"**, atau **\"programmer\"** untuk merespons pangkalan data.`;
+                triggerInternetSearch = true;
             }
 
-            setTimeout(() => {
-                msgContainer.innerHTML += `<div class="bg-[#0f172a]/80 p-3 rounded-xl border border-slate-700 max-w-[85%] text-slate-100 font-sans leading-relaxed font-bold"><span class="text-cyan-400 font-mono text-xs block font-black">BOT ANSWER:</span>${reply}</div>`;
+            if (triggerInternetSearch) {
+                let loaderId = "loading-" + Date.now();
+                msgContainer.innerHTML += `<div id="${loaderId}" class="text-cyan-400 text-xs italic ml-2 mb-2"><i class="fa-solid fa-circle-notch fa-spin"></i> Mengekstrak data dari Internet Global via API Wikipedia...</div>`;
                 msgContainer.scrollTop = msgContainer.scrollHeight;
-            }, 300);
-            inputEl.value = '';
+
+                reply = await fetchWikipediaAPI(query);
+
+                const loaderEl = document.getElementById(loaderId);
+                if(loaderEl) loaderEl.remove();
+            }
+
+            msgContainer.innerHTML += `<div class="bg-[#0f172a]/80 p-3 rounded-xl border border-slate-700 max-w-[85%] text-slate-100 font-sans leading-relaxed font-bold shadow-lg"><span class="text-cyan-400 font-mono text-xs block font-black">BOT ANSWER:</span>${reply}</div>`;
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+
+            speakText(reply);
         }
 
         const pilarData = {
@@ -1696,7 +1826,7 @@
         };
 
         function switchPilar(id) {
-            document.querySelectorAll('.pilar-btn').forEach(b => b.className = "pilar-btn px-2 py-3 text-left rounded-lg font-tech text-xs border-2 border-slate-700 bg-slate-800/60 text-slate-300 font-bold cursor-pointer hover:scale-105 hover:border-cyan-500 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all duration-300");
+            document.querySelectorAll('.pilar-btn').forEach(b => b.className = "pilar-btn px-2 py-3 text-left rounded-lg font-tech text-xs border-2 border-slate-700 bg-slate-800/60 text-slate-300 font-bold cursor-pointer transition-all duration-300 hover:scale-105 hover:border-cyan-500 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)]");
             document.getElementById(`btn-pilar-${id}`).className = "pilar-btn px-2 py-3 text-left rounded-lg font-tech text-xs border-2 border-cyan-400 bg-cyan-950 text-cyan-400 font-black cursor-pointer scale-105 shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all duration-300";
             const data = pilarData[id]; let li = '';
             data.items.forEach(it => { li += `<li class="flex items-start gap-2 text-base text-[var(--text-main)] font-bold"><i class="fa-solid fa-square-poll-horizontal text-cyan-500 mt-1 text-xs"></i><span>${it}</span></li>`; });
@@ -1830,7 +1960,7 @@
             initClockEngine(); 
             switchPilar(1); 
             aktifkanOtomatisasiWindy(); 
-            initHoloTooltips(); // Memanggil Holo Engine
+            initHoloTooltips(); 
         };
     </script>
 </body>
