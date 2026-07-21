@@ -373,6 +373,9 @@
                         </button>
                     </div>
                     <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full justify-end">
+                        <button type="button" onclick="gantiTemaSuara()" class="bg-slate-900 border border-cyan-700 text-xs font-mono font-black px-3 py-2 rounded-lg text-cyan-400 hover:bg-cyan-900/60 transition-all flex items-center justify-center hover:scale-105 shadow-[0_0_10px_rgba(6,182,212,0.3)]" title="Ganti Gaya Tema Suara Sirine (Sawtooth, Square, Triangle)">
+                            <i class="fa-solid fa-music"></i>
+                        </button>
                         <button id="btnSirineTest" onclick="toggleManualSirine()" class="bg-slate-950 border border-red-900 text-xs font-mono font-black px-4 py-2 rounded-lg text-red-500 hover:bg-red-950/60 transition-all flex items-center gap-1.5 whitespace-nowrap" title="Lakukan Uji Coba Bunyi Sirine Alarm Peringatan Dini Bencana">
                             <i id="iconSirine" class="fa-solid fa-volume-xmark"></i> <span id="textSirine">TEST SIRINE: MUTED</span>
                         </button>
@@ -649,6 +652,9 @@
             <div class="p-3 bg-[#0f172a] border-t border-slate-800 flex gap-2 shrink-0 items-center">
                 <button onclick="startVoiceRecognition()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 px-3 py-2.5 rounded-xl text-sm transition-transform cursor-pointer shadow-inner" title="Gunakan Perintah Suara / Voice Command">
                     <i id="micBtnIcon" class="fa-solid fa-microphone"></i>
+                </button>
+                <button onclick="changeGuideVoice()" class="bg-indigo-900 hover:bg-indigo-800 text-indigo-400 px-3 py-2.5 rounded-xl text-sm transition-transform cursor-pointer shadow-inner" title="Ganti Suara Pemandu Bot (Voice Type)">
+                    <i class="fa-solid fa-headset"></i>
                 </button>
                 <input type="text" id="chatInput" placeholder="Ketik atau ucapkan pesan..." class="flex-1 bg-[#020617] border-2 border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-cyan-400 font-bold placeholder-slate-500" onkeypress="handleChatKeyPress(event)" title="Ketik Perintah Analisis Cuaca Atau Parameter Oseanografi Disini Untuk Dijawab Oleh Bot...">
                 <button onclick="processChatMessage()" class="bg-cyan-600 hover:bg-cyan-500 hover:scale-105 transition-transform text-white px-4 py-2.5 rounded-xl text-sm font-black cursor-pointer flex items-center justify-center" title="Kirim Prompt Data Kepada AI Engine Terminal"><i class="fa-solid fa-paper-plane"></i></button>
@@ -981,8 +987,60 @@
         const maximumIdleLimitBeforeActivation = 300; 
         let isMonsoonScreensaverModeActive = false;
 
+        // ================= FITUR BARU: MANAJEMEN TEMA SUARA =================
+        let temaSuaraList = ['sawtooth', 'square', 'triangle'];
+        let temaSuaraIndex = 0;
+
+        function gantiTemaSuara() {
+            temaSuaraIndex = (temaSuaraIndex + 1) % temaSuaraList.length;
+            speakText("Tema suara sirine diubah menjadi mode " + (temaSuaraIndex + 1));
+            
+            const msgContainer = document.getElementById('chatMessages');
+            if(msgContainer) {
+                msgContainer.innerHTML += `<div class="bg-[#0f172a]/80 p-3 rounded-xl border border-cyan-500 max-w-[85%] text-slate-100 font-sans leading-relaxed font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)]"><span class="text-cyan-400 font-mono text-xs block font-black"><i class="fa-solid fa-gear"></i> SISTEM AUDIO:</span>Tema suara sirine berhasil diubah ke gaya ${temaSuaraList[temaSuaraIndex].toUpperCase()}.</div>`;
+                msgContainer.scrollTop = msgContainer.scrollHeight;
+            }
+
+            if (statusSirineMenyala) {
+                matikanSirine();
+                nyalakanSirine();
+            }
+        }
+
         // ================= FITUR BARU: TEXT-TO-SPEECH (SUARA BOT) =================
         let isVoiceEnabled = true;
+        let availableVoices = [];
+        let currentGuideVoiceIndex = 0;
+
+        // Memuat daftar jenis suara dari Web Speech API Browser
+        function loadVoices() {
+            availableVoices = window.speechSynthesis.getVoices();
+        }
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+
+        // Fungsi Tombol Ganti Suara Pemandu
+        function changeGuideVoice() {
+            if(availableVoices.length === 0) loadVoices();
+            if(availableVoices.length === 0) {
+                alert("Maaf, belum ada data suara panduan yang terdeteksi di browser ini.");
+                return;
+            }
+            
+            // Prioritaskan daftar suara berbahasa Indonesia atau yang relevan, atau gunakan seluruh daftar suara default
+            let idVoices = availableVoices.filter(v => v.lang.includes('id') || v.lang.includes('ID'));
+            let voicePool = idVoices.length > 0 ? idVoices : availableVoices;
+
+            currentGuideVoiceIndex = (currentGuideVoiceIndex + 1) % voicePool.length;
+            let selectedVoice = voicePool[currentGuideVoiceIndex];
+            
+            speakText("Suara pemandu telah diubah ke versi: " + selectedVoice.name);
+            
+            const msgContainer = document.getElementById('chatMessages');
+            if(msgContainer) {
+                msgContainer.innerHTML += `<div class="bg-[#0f172a]/80 p-3 rounded-xl border border-indigo-500 max-w-[85%] text-slate-100 font-sans leading-relaxed font-bold shadow-[0_0_15px_rgba(99,102,241,0.3)]"><span class="text-indigo-400 font-mono text-xs block font-black"><i class="fa-solid fa-headset"></i> PENGATURAN SUARA BOT:</span>Suara asisten virtual diubah menjadi:<br><b class="text-cyan-300">${selectedVoice.name}</b></div>`;
+                msgContainer.scrollTop = msgContainer.scrollHeight;
+            }
+        }
 
         function toggleVoice() {
             isVoiceEnabled = !isVoiceEnabled;
@@ -995,9 +1053,7 @@
                 
                 // Beri Konfirmasi Langsung Bahwa Suara Menyala
                 window.speechSynthesis.cancel();
-                let utterance = new SpeechSynthesisUtterance("Fitur penjelasan suara asisten kecerdasan buatan, telah diaktifkan.");
-                utterance.lang = 'id-ID';
-                window.speechSynthesis.speak(utterance);
+                speakText("Fitur penjelasan suara asisten kecerdasan buatan, telah diaktifkan.");
             } else {
                 icon.classList.replace('fa-volume-high', 'fa-volume-xmark');
                 btn.classList.replace('border-emerald-400', 'border-emerald-500/60');
@@ -1018,6 +1074,14 @@
             let utterance = new SpeechSynthesisUtterance(cleanText);
             utterance.lang = 'id-ID';
             utterance.rate = 1.0;
+
+            // Mengaplikasikan jenis suara TTS yang sudah dipilih
+            let idVoices = availableVoices.filter(v => v.lang.includes('id') || v.lang.includes('ID'));
+            let voicePool = idVoices.length > 0 ? idVoices : availableVoices;
+            if(voicePool.length > 0) {
+                utterance.voice = voicePool[currentGuideVoiceIndex % voicePool.length];
+            }
+
             window.speechSynthesis.speak(utterance);
         }
 
@@ -1702,7 +1766,10 @@
         function nyalakanSirine() {
             if (statusSirineMenyala) return;
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            oscillator = audioCtx.createOscillator(); gainNode = audioCtx.createGain(); oscillator.type = 'sawtooth'; oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+            oscillator = audioCtx.createOscillator(); gainNode = audioCtx.createGain(); 
+            // MEMUAT TEMA SUARA DINAMIS
+            oscillator.type = temaSuaraList[temaSuaraIndex]; 
+            oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
             oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); gainNode.gain.setValueAtTime(0.06, audioCtx.currentTime); oscillator.start(); statusSirineMenyala = true;
             document.getElementById('visualSirenBar').classList.remove('hidden'); document.getElementById('textSirine').innerText = "SIRINE: UNMUTED";
             document.getElementById('btnSirineTest').className = "bg-red-950 border border-red-500 text-xs font-mono font-black px-4 py-2 rounded-lg cursor-pointer text-white shadow-[0_0_15px_rgba(239,68,68,0.6)] hover:scale-105 transition-all flex items-center gap-1.5 whitespace-nowrap";
@@ -1961,6 +2028,9 @@
             switchPilar(1); 
             aktifkanOtomatisasiWindy(); 
             initHoloTooltips(); 
+            
+            // Muat suara untuk disiapkan
+            loadVoices();
         };
     </script>
 </body>
