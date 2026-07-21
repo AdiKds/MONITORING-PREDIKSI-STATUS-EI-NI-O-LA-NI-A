@@ -169,6 +169,10 @@
         @keyframes leopard-ear-r { 0%, 55%, 70%, 100% { transform: rotate(15deg); } 62.5% { transform: rotate(35deg); } }
         @keyframes leopard-tongue { 0%, 25%, 50%, 75%, 100% { transform: translateY(-100%); } 35%, 40% { transform: translateY(0); } 85%, 90% { transform: translateY(0); } }
         @keyframes load-bar { 0% { width: 0%; } 100% { width: 100%; } }
+        
+        .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 4px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.5); border-radius: 4px; }
     </style>
 </head>
 <body id="appBody" class="theme-dark bg-[var(--bg-main)] text-[var(--text-main)] p-4 md:p-6 min-h-screen flex flex-col justify-between overflow-x-hidden relative pb-32">
@@ -635,7 +639,7 @@
                 </div>
             </div>
             
-            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-4 font-sans text-[15px] text-white bg-[#020617] font-medium">
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-4 font-sans text-[15px] text-white bg-[#020617] font-medium scrollbar-thin">
                 <div class="bg-[#0f172a]/80 p-3 rounded-xl border border-slate-700 max-w-[85%] font-sans font-bold text-slate-100 shadow-lg">
                     <span class="text-cyan-400 font-mono text-xs block font-black mb-1"><i class="fa-solid fa-terminal"></i> ASSISTANT INITIALIZED:</span>
                     Halo! Saya asisten pintar ENSO. Saya terhubung dengan sistem lokal dan <b>API Wikipedia</b> untuk menjawab seluruh panduan cuaca Anda. Ketik, gunakan pintasan, atau klik ikon <i>Mic</i> untuk berbicara!
@@ -647,6 +651,7 @@
                 <button onclick="triggerShortcut('analisis')" class="px-3 py-1.5 bg-[#020617] border-2 border-cyan-500/60 rounded-xl text-[11px] font-black text-cyan-400 hover:bg-cyan-950/40 hover:scale-105 cursor-pointer transition-all duration-300" title="Perintah Kepada AI Untuk Membacakan Rangkuman Kesimpulan Data Kalkulasi Nilai Simulator Yang Saat Ini Aktif">📊 Analisis Dasarian</button>
                 <button onclick="triggerShortcut('mitigasi')" class="px-3 py-1.5 bg-[#020617] border-2 border-emerald-500/60 rounded-xl text-[11px] font-black text-emerald-400 hover:bg-emerald-950/40 hover:scale-105 cursor-pointer transition-all duration-300" title="Mohon AI Memberikan Arahan Solutif Pencegahan Atau Persiapan Diri Menghadapi Prediksi Cuaca Buruk">🛡️ Saran Mitigasi</button>
                 <button onclick="triggerShortcut('programmer')" class="px-3 py-1.5 bg-[#020617] border-2 border-fuchsia-500/60 rounded-xl text-[11px] font-black text-fuchsia-400 hover:bg-fuchsia-950/40 hover:scale-105 cursor-pointer transition-all duration-300" title="Informasi Lengkap Database Mengenai Ilmuwan / Programmer Arsitektur Kode Aplikasi Web Ekstrem Ini">👨‍💻 Programmer</button>
+                <button onclick="triggerShortcut('my_aplikasi')" class="px-3 py-1.5 bg-[#020617] border-2 border-indigo-500/60 rounded-xl text-[11px] font-black text-indigo-400 hover:bg-indigo-950/40 hover:scale-105 cursor-pointer transition-all duration-300" title="Tampilkan Semua My Aplikasi Ekosistem Portofolio">📱 My Aplikasi</button>
             </div>
 
             <div class="p-3 bg-[#0f172a] border-t border-slate-800 flex gap-2 shrink-0 items-center">
@@ -944,6 +949,44 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
+        // DAFTAR APLIKASI DIINTEGRASIKAN DARI FILE AL-QURAN DIGITAL
+        const appsList = [
+            {u:"https://adikds.github.io/jarvis-ai/",i:"fa-robot",n:"JARVIS AI"},
+            {u:"https://adikds.github.io/edu-market-pro/",i:"fa-graduation-cap",n:"EduMarket Pro"},
+            {u:"https://adikds.github.io/iptv-terminal/",i:"fa-tv",n:"IPTV Terminal"},
+            {u:"https://adikds.github.io/TV-streaming-live/",i:"fa-signal",n:"TV Streaming Live"},
+            {u:"https://adikds.github.io/Al-Quran-Karim/",i:"fa-book-quran",n:"Al-Quran Karim"},
+            {u:"https://adikds.github.io/-MEGA-ATLAS-FKG/",i:"fa-tooth",n:"Mega Atlas FKG"},
+            {u:"https://adikds.github.io/SISTEM-MONITORING-SEISMIK-PERINGATAN-TSUNAMI/",i:"fa-wave-square",n:"Tsunami Alert"},
+            {u:"https://adikds.github.io/MONITORING-PREDIKSI-STATUS-EI-NI-O-LA-NI-A/",i:"fa-temperature-half",n:"El Nino La Nina"},
+            {u:"https://adikds.github.io/MONITORING-PREDIKSI-ANGIN-MUSON-INDONESIA/",i:"fa-wind",n:"Angin Muson"},
+            {u:"https://adikds.github.io/INTEGRATED-DAM-ANALYTICS-ASSESSMENT-SYSTEM/",i:"fa-water",n:"Dam Analytics"},
+            {u:"https://adikds.github.io/WAY-APU-DAM/",i:"fa-building-shield",n:"Way Apu Dam"},
+            {u:"https://adikds.github.io/EVENT-DRIVEN-ARCHITECTURE-FOR-AI-AGENTS/",i:"fa-sitemap",n:"EDA AI Agents"},
+            {u:"https://adikds.github.io/GeoStructPro-15-Essential-Geotechnical-Formulas/",i:"fa-mountain",n:"GeoStructPro 15"},
+            {u:"https://adikds.github.io/GEOSTRUCT-PRO-20-FORMULA-GEOTECHNICAL/",i:"fa-layer-group",n:"GeoStruct Pro 20"},
+            {u:"https://adikds.github.io/UNIFIED-SOIL-CLASSIFICATION-SYSTEM/",i:"fa-cubes",n:"USCS Soil"},
+            {u:"https://adikds.github.io/AERORADAR-PRO/",i:"fa-plane",n:"AeroRadar Pro"},
+            {u:"https://adikds.github.io/HYDRACANAL-PRO-GEOMETRIC-DESIGN/",i:"fa-water-ladder",n:"HydraCanal Pro"},
+            {u:"https://adikds.github.io/financial-planner/",i:"fa-chart-line",n:"Financial Planner"},
+            {u:"https://adikds.github.io/business-suite/",i:"fa-chart-bar",n:"Business Suite"},
+            {u:"https://adikds.github.io/stock-manager/",i:"fa-boxes-stacked",n:"Stock Manager"},
+            {u:"https://adikds.github.io/Aplikasi_Point_of_Sale_-POS-_atau_sistem_kasir/",i:"fa-cash-register",n:"POS Terminal Pro"},
+            {u:"https://adikds.github.io/KEUANGANKU/",i:"fa-cash-register",n:"Keuanganku"},
+            {u:"https://adikds.github.io/DARUSSYIFA-MEDIKA/",i: "fa-hospital",n:"DARUSSYIFA"},
+            {u:"https://adikds.github.io/SKIN_SYIFA_AI/",i: "fa-magnifying-glass-chart",n:"SKIN SYIFA"},
+            {u:"https://adikds.github.io/NEURO-PSYCH_AI/",i: "fa-brain",n:"NEURO-PSYCH"},
+            {u:"https://adikds.github.io/SMILE-SYIFA-AI/",i: "fa-face-smile",n:"SMILE SYIFA"},
+            {u:"https://adikds.github.io/DOKTER-AI/",i: "fa-user-doctor",n:"DOKTER AI"},
+            {u: "https://www.f15library.com/", i: "fa-book-open-reader",n: "F15 Library"},
+            {u: "https://adikds.github.io/ATLAS-GEOTEKNIK/", i: "fa-earth-americas",n: "Geotechnical"},
+            {u: "https://adikds.github.io/STATISTICS_for_ENGINEERS-/", i: "fa-chart-pie",n: "Stats Engineers"},
+            {u: "https://famelack.com/radio/id", i: "fa-radio", n: "Radio Online"},
+            {u: "https://famelack.com/tv/id", i: "fa-tv",n: "TV Famelack"},
+            {u: "https://adikds.github.io/Mega-Atlas-Kedokteran-Neurologi-Bedah-Syaraf/", i: "fa-brain",n: "Neurology"},
+            {u: "https://adikds.github.io/Adi_Newbie/", i: "fa-user-astronaut",n: "Adi Newbie" }
+        ];
+
         let currentTheme = 'dark';
         let currentMapLayer = null;
         let fsMapInstance = null;
@@ -1190,7 +1233,7 @@
         function fokusFaseEnso(fase) {
             if(hoverFaseTimer) clearTimeout(hoverFaseTimer);
             let lat, lon, zoom, locName, color;
-            if(fase === 'elnino') { lat = -0.1; lon = -145.0; zoom = 3; locName = "ZONA NIÑO 3.4 (PASIFIK TENGAH)"; color = "#ef4444"; } 
+            if(fase === 'elnino') { lat = -0.1; -145.0; zoom = 3; locName = "ZONA NIÑO 3.4 (PASIFIK TENGAH)"; color = "#ef4444"; } 
             else if(fase === 'lanina') { lat = -0.5; lon = 120.0; zoom = 4; locName = "MARITIM NUSANTARA"; color = "#3b82f6"; } 
             else { lat = -0.5; lon = 120.0; zoom = 4; locName = "MARITIM NUSANTARA"; color = "#10b981"; }
             
@@ -1829,6 +1872,7 @@
             if(type === 'analisis') input.value = "Minta analisis status kelautan dasarian saat ini";
             if(type === 'mitigasi') input.value = "Saran strategi mitigasi bencana ENSO";
             if(type === 'programmer') input.value = "Siapa programmer pengembang aplikasi ini?";
+            if(type === 'my_aplikasi') input.value = "Tampilkan Semua My Aplikasi Ekosistem Portofolio";
             processChatMessage();
         }
 
@@ -1844,18 +1888,22 @@
             inputEl.value = '';
             
             let reply = "";
+            let voiceReply = "";
             let triggerInternetSearch = false;
 
             if (query.includes('enso') || (query.includes('apa itu') && query.includes('enso'))) {
                 reply = `**EDUKASI KILAT FENOMENA ENSO:**<br><b>ENSO (El Niño-Southern Oscillation)</b> adalah anomali variasi iklim periodik global sirkulasi atmosfer yang terjadi akibat interaksi kopling fluktuasi perubahan suhu permukaan laut (SST) di wilayah Samudra Pasifik Ekuator Tengah-Timur (Zona Niño 3.4). Perubahan temperatur ini berimbas langsung pada bergesernya sabuk awan hujan dan memicu iklim ekstrem global seperti kemarau terik (<i>El Niño</i>) atau badai basah masif (<i>La Niña</i>) di benua maritim Indonesia.`;
+                voiceReply = reply;
             } else if (query.includes('analisis') || query.includes('status') || query.includes('dasarian')) {
                 reply = `**LAPORAN ANALISIS DATA DASARIAN:**<br>Evaluasi siklus dasarian siber: *${simCurrentBulan}* dengan nilai indikatif ONI sebesar **${simCurrentScore}**. Hasil asimilasi instrumen siber laut saat ini menunjukkan: *${simCurrentStatus}*.`;
+                voiceReply = reply;
             } else if (query.includes('mitigasi') || query.includes('saran') || query.includes('strategi')) {
                 if (isAITrackingActive && trackedAiType !== "") {
                     reply = `**MITIGASI LOKASI AI TRACKING (${trackedAiLat.toFixed(2)}, ${trackedAiLon.toFixed(2)}):**<br><br><b>Prediksi Ekstrem:</b> ${trackedAiType}<br><b>Akurasi AI:</b> Tinggi (Berdasarkan Deviasi Termal)<br><br><b>Saran Khusus AI:</b><br>${trackedAiMitigasi}<br><br><span class="text-[10px] italic text-cyan-400">*Untuk saran mitigasi umum seluruh sektor, mohon matikan fitur AI Tracking terlebih dahulu.*</span>`;
                 } else {
                     reply = `**Laporan Mitigasi Sektoral Terpadu:**<br><br><b>Sektor Agraria:</b><br>Tanah rentan retak dan defisit kelembapan tinggi. Hentikan tanam padi sementara waktu, alihkan fokus penuh ke budidaya komoditas palawija hemat air dengan sistem irigasi tetes.<br><br><b>Sektor Perikanan & Maritim:</b><br>Antisipasi hembusan angin kering konstan di jalur selat sempit. Pelayaran logistik relatif lebih aman, namun perhatikan pergerakan migrasi ikan pelagis yang mengikuti suhu termal laut.<br><br><b>Sektor Transportasi:</b><br>Visibilitas horizontal dapat menurun drastis akibat partikulat debu vulkanik, tanah kering yang berterbangan, atau asap pekat dari kebakaran hutan dan lahan (Karhutla) di wilayah kepulauan kering.<br><br><b>Sumber Daya Air (SDA):</b><br>Darurat Krisis Air Bersih. Segera distribusikan pasokan air darurat, siapkan skema gilir irigasi untuk mencegah konflik sosial hilir DAS, dan aktifkan sumur bor dalam untuk sumber cadangan hidrologi.`;
                 }
+                voiceReply = reply;
             } else if (query.includes('siapa') || query.includes('creator') || query.includes('pengembang') || query.includes('hartadi') || query.includes('programmer')) {
                 reply = `**DATA UTAMA PROGRAMMER PENGEMBANG:**<br>Sistem monitoring klimatologi ENSO komputasi ini dirancang dan dikembangkan secara eksklusif oleh **Mohamad Hartadi & Keluarga**.<br><br>
                 <ul style="list-style: none; padding-left: 0; margin-top: 10px; line-height: 1.8;">
@@ -1863,6 +1911,26 @@
                     <li>● <span class="text-white">Facebook Profile:</span> <a href="https://www.facebook.com/m.hartadi" target="_blank" class="text-cyan-400 hover:text-cyan-300 hover:underline font-bold transition-colors">Mohamad Hartadi <i class="fa-brands fa-facebook"></i></a></li>
                     <li>● <span class="text-white">Portal Web Blog:</span><br><a href="https://newbieonline7.blogspot.com/" target="_blank" class="text-pink-400 hover:text-pink-300 hover:underline font-bold transition-colors">newbieonline7.blogspot.com <i class="fa-solid fa-globe"></i></a></li>
                 </ul>`;
+                voiceReply = reply;
+            } else if (query.includes('aplikasi') || query.includes('my aplikasi') || query.includes('portofolio')) {
+                let appsHtml = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">';
+                appsList.forEach(app => {
+                    appsHtml += `
+                        <a href="${app.u}" target="_blank" class="flex items-center gap-2 p-2 bg-[#020617] hover:bg-slate-900 border border-cyan-500/30 hover:border-cyan-400 rounded-lg transition-colors text-decoration-none shadow-sm cursor-pointer">
+                            <div class="w-6 h-6 flex items-center justify-center bg-cyan-950 rounded-full shrink-0 text-cyan-400 text-[10px]">
+                                <i class="fa-solid ${app.i}"></i>
+                            </div>
+                            <span class="text-[9px] sm:text-[10px] font-bold text-slate-200 font-sans truncate">${app.n}</span>
+                        </a>
+                    `;
+                });
+                appsHtml += '</div>';
+                
+                reply = `**DIREKTORI MY APLIKASI:**<br>Berikut adalah daftar portofolio aplikasi ekosistem terpadu milik Mohamad Hartadi:
+                <div class="max-h-56 overflow-y-auto pr-1 pb-1 border-t border-slate-700 mt-2 pt-2 scrollbar-thin">
+                    ${appsHtml}
+                </div>`;
+                voiceReply = "Sistem menampilkan direktori portofolio My Aplikasi ekosistem terpadu di layar obrolan Anda.";
             } else {
                 triggerInternetSearch = true;
             }
@@ -1873,6 +1941,7 @@
                 msgContainer.scrollTop = msgContainer.scrollHeight;
 
                 reply = await fetchWikipediaAPI(query);
+                voiceReply = reply;
 
                 const loaderEl = document.getElementById(loaderId);
                 if(loaderEl) loaderEl.remove();
@@ -1881,7 +1950,7 @@
             msgContainer.innerHTML += `<div class="bg-[#0f172a]/80 p-3 rounded-xl border border-slate-700 max-w-[85%] text-slate-100 font-sans leading-relaxed font-bold shadow-lg"><span class="text-cyan-400 font-mono text-xs block font-black">BOT ANSWER:</span>${reply}</div>`;
             msgContainer.scrollTop = msgContainer.scrollHeight;
 
-            speakText(reply);
+            speakText(voiceReply);
         }
 
         const pilarData = {
